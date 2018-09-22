@@ -160,8 +160,6 @@ def build_model_safety():
 
   return model
 
-  return model
-
 def reshape_regulation(obs_dict):
   lane_gap_1hot = [-0.5] * (2*NUM_LANE_CONSIDERED + 1)
   lane_gap_1hot[obs_dict["ego_correct_lane_gap"] + NUM_LANE_CONSIDERED] = 0.5
