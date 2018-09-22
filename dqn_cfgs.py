@@ -132,26 +132,33 @@ def build_model_safety():
   ego_l1 = tf.keras.layers.Dense(320, activation=None)(ego_input)
 
   veh_inputs = [tf.keras.layers.Input(shape=(16,)) for _ in range(NUM_VEH_CONSIDERED)]
-  shared_Dense1 = tf.keras.layers.Dense(320, activation=None)
-  veh_l = [shared_Dense1(x) for x in veh_inputs]
+  veh_l = veh_inputs
 
-  veh_l = [tf.keras.layers.add([ego_l1, x]) for x in veh_l]
-  veh_l = [tf.keras.layers.LeakyReLU()(x) for x in veh_l]
-
-  n_layers = 4
+  n_layers = 2
   Dense_list = [tf.keras.layers.Dense(320, activation=None) for _ in range(n_layers)]
   for i in range(n_layers):
     veh_l = [Dense_list[i](x) for x in veh_l]
     veh_l = [tf.keras.layers.LeakyReLU()(x) for x in veh_l]
 
-  shared_Dense2 = tf.keras.layers.Dense(reduced_action_size, activation=None)
-  veh_y = [shared_Dense2(x) for x in veh_l]
+  shared_Dense = tf.keras.layers.Dense(320, activation=None)
+  veh_l = [shared_Dense(x) for x in veh_l]
 
-  y = tf.keras.layers.minimum(veh_y)
+  merged = tf.keras.layers.add(veh_l+[ego_l1])
+  merged = tf.keras.layers.LeakyReLU()(merged)
 
-  model = tf.keras.models.Model(inputs=[ego_input] + veh_inputs, outputs=veh_y + [y])
+  n_layers_merged = 2
+  Dense_list_merged = [tf.keras.layers.Dense(320, activation=None) for _ in range(n_layers_merged)]
+  for i in range(n_layers_merged):
+    merged = Dense_list_merged[i](merged)
+    merged = tf.keras.layers.LeakyReLU()(merged)
+
+  y = tf.keras.layers.Dense(reduced_action_size, activation=None)(merged)
+
+  model = tf.keras.models.Model(inputs=[ego_input] + veh_inputs, outputs=[y, y])
   opt = tf.keras.optimizers.RMSprop(lr=0.0001)
   model.compile(loss='logcosh', optimizer=opt)
+
+  return model
 
   return model
 

@@ -15,8 +15,6 @@ def get_reward_list(env):
           [violation0, violation1])
 
 def get_reward_safety(env):
-  rewards = []
-  dones = []
   obs_dict = env.obs_dict_hist[-1]
   old_obs_dict = None
   if len(env.obs_dict_hist) > 1:
@@ -27,9 +25,9 @@ def get_reward_safety(env):
   if env.env_state == EnvState.CRASH:
     violated = True
 
+  r = 0
+  d = False
   for i, c in enumerate(obs_dict["collision"]):
-    r = 0
-    d = False
 
     if (old_obs_dict is not None and
         obs_dict["is_new"][i] == 0 and
@@ -50,12 +48,10 @@ def get_reward_safety(env):
             "pos", np.linalg.norm(old_obs_dict["relative_position"][i]), "action", action_dict,
             "collision", c)
       r = -1
-    if obs_dict["is_new"][i] == 1 or r == -1:
+    if r == -1:
       d = True
-    rewards += [[r]]
-    dones += [[d]]
 
-  return (rewards, dones, violated)
+  return ([[r]], [[d]], violated)
 
 def get_reward_regulation(env):
   r = 0
