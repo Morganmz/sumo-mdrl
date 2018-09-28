@@ -204,7 +204,7 @@ class DQNAgent:
       # print(self.name, targets_f[-1][0])
 
       loss = model.train_on_batch(states, targets_f)
-      if self.name == "all":
+      if self.name == "safety":
         print("model ", model_index, " ", loss[0])
 
       loss_hist.append(loss[0])
@@ -223,7 +223,7 @@ class DQNAgent:
             x[np.where(x < self.low_target)] = self.low_target
             x[actions[i][j]] = targets[i][j]
         loss = model.train_on_batch(states, targets_f)
-        if self.name == "all":
+        if self.name == "safety":
           print("model ", model_index, " ", self.name, " supplementary training:", np.median(loss_hist), loss[0])
 
     self.reset_models()

@@ -65,6 +65,7 @@ def get_reward_regulation(env):
   old_obs_dict = None
   if len(env.obs_dict_hist) > 1:
     old_obs_dict = env.obs_dict_hist[-2]
+  action_dict = env.action_dict_hist[-1]
 
   if obs_dict["ego_dist_to_end_of_lane"] < 100:
     if obs_dict["ego_correct_lane_gap"] != 0:
@@ -77,15 +78,13 @@ def get_reward_regulation(env):
   if ((old_tte is not None and old_tte < 3) or old_obs_dict["ego_dist_to_end_of_lane"] < 2) and \
      obs_dict["ego_has_priority"] != 1 and \
      obs_dict["ego_in_intersection"] != 1 and \
-     old_tte is not None and \
-     old_tte > tte + 0.00001:
+     old_tte > tte + 0.00001 and \
+     action_dict["accel_level"] != ActionAccel.MAXDECEL:
+      print("regulation: old_tte", old_tte, " tte ", tte)
       r = -1
 
   if (obs_dict["ego_dist_to_end_of_lane"] < 0.01 and obs_dict["ego_correct_lane_gap"] != 0
-      ) or (obs_dict["ego_dist_to_end_of_lane"] < 1 and
-            obs_dict["ego_has_priority"] != 1 and
-            obs_dict["ego_in_intersection"] != 1 and
-            obs_dict["ego_speed"] > 0.5):
+      ) or (tte < 0.5 and obs_dict["ego_has_priority"] != 1 and obs_dict["ego_in_intersection"] != 1):
     violated = True
 
   if obs_dict["ego_priority_changed"] == 1 or obs_dict["ego_edge_changed"] == 1:
