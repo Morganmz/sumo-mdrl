@@ -5,11 +5,11 @@ from include import *
 import numpy as np
 
 def get_reward_list(env):
-  r, d, violation0, violation1 = get_reward_all(env)
+  r, d, violation_safety, violation_yield, violation_turn = get_reward_all(env)
 
   return ([r],
           [d],
-          [violation0, violation1])
+          [violation_safety, violation_yield, violation_turn])
 
 def get_reward_all(env):
   obs_dict = env.obs_dict_hist[-1]
@@ -18,10 +18,10 @@ def get_reward_all(env):
     old_obs_dict = env.obs_dict_hist[-2]
   action_dict = env.action_dict_hist[-1]
 
-  violated0 = False
+  violated_safety = False
   d = False
   if env.env_state == EnvState.CRASH:
-    violated0 = True
+    violated_safety = True
     d = True
 
   r = 0
@@ -31,7 +31,6 @@ def get_reward_all(env):
         obs_dict["is_new"][i] == 0 and
         obs_dict["veh_relation_none"] != 1 and
         (obs_dict["veh_relation_ahead"][i] == 1 or
-         obs_dict["veh_relation_behind"][i] == 1 or
          ((obs_dict["veh_relation_conflict"][i] == 1 or obs_dict["veh_relation_peer"][i] == 1) and
           (obs_dict["ego_has_priority"] == 0 or obs_dict["in_intersection"][i] == 1) and
           old_obs_dict["dist_to_end_of_lane"][i] < 20 and
@@ -43,7 +42,7 @@ def get_reward_all(env):
          action_dict["accel_level"] != ActionAccel.MAXDECEL
          )
         ) or (env.env_state == EnvState.CRASH
-        ) or (action_dict["lane_change"] != ActionLaneChange.NOOP and (obs_dict["ttc"][i] < 2)
+        ) or (action_dict["lane_change"] != ActionLaneChange.NOOP and (obs_dict["ttc"][i] < 1.5)
         ):
       print(obs_dict["veh_ids"][i], "old_ttc", old_obs_dict["ttc"][i], "ttc", obs_dict["ttc"][i],
             "pos", np.linalg.norm(old_obs_dict["relative_position"][i]), "action", action_dict,
@@ -51,10 +50,12 @@ def get_reward_all(env):
       r = -1
 
   # regulation
-  violated1 = False
-  if (obs_dict["ego_dist_to_end_of_lane"] < 0.01 and obs_dict["ego_correct_lane_gap"] != 0
-  ) or (tte < 0.5 and obs_dict["ego_has_priority"] != 1 and obs_dict["ego_in_intersection"] != 1):
-    violated1 = True
+  violated_yield = False
+  violated_turn = False
+  if (obs_dict["ego_dist_to_end_of_lane"] < 0.01 and obs_dict["ego_correct_lane_gap"] != 0):
+    violated_turn = True
+  if (tte < 0.5 and obs_dict["ego_has_priority"] != 1 and obs_dict["ego_in_intersection"] != 1):
+    violated_yield = True
 
   if obs_dict["ego_correct_lane_gap"] != 0:
     r += 0.5 * (1 / (1 + np.exp(-0.1 * (obs_dict["ego_dist_to_end_of_lane"] - 60))) - 1)
@@ -71,5 +72,5 @@ def get_reward_all(env):
       print("regulation: old_tte",old_tte , " tte ", tte)
       r += -1
 
-  return ([[r]], [[d]], violated0, violated1)
+  return ([[r]], [[d]], violated_safety, violated_yield, violated_turn)
 
