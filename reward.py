@@ -81,6 +81,7 @@ def get_reward_regulation(env):
      old_tte > tte + 0.00001 and \
      action_dict["accel_level"] != ActionAccel.MAXDECEL:
       print("regulation: old_tte", old_tte, " tte ", tte)
+      done = True
       r = -1
 
   if (obs_dict["ego_dist_to_end_of_lane"] < 0.01 and obs_dict["ego_correct_lane_gap"] != 0):
