@@ -5,26 +5,28 @@ from include import *
 import numpy as np
 
 def get_reward_list(env):
-  r, d, violation0, violation1 = get_reward_all(env)
+  r_validity, d_validity = None, None
+  r_safety, d_safety, violation0 = get_reward_safety(env)
+  r_regulation, d_regulation, violation1 = get_reward_regulation(env)
+  r_speed_comfort, d_speed_comfort = None, None
 
-  return ([r],
-          [d],
+  return ([r_validity, r_safety, r_regulation, r_speed_comfort],
+          [d_validity, d_safety, d_regulation, d_speed_comfort],
           [violation0, violation1])
 
-def get_reward_all(env):
+def get_reward_safety(env):
   obs_dict = env.obs_dict_hist[-1]
   old_obs_dict = None
   if len(env.obs_dict_hist) > 1:
     old_obs_dict = env.obs_dict_hist[-2]
   action_dict = env.action_dict_hist[-1]
 
-  violated0 = False
-  d = False
+  violated = False
   if env.env_state == EnvState.CRASH:
-    violated0 = True
-    d = True
+    violated = True
 
   r = 0
+  d = False
   for i, c in enumerate(obs_dict["collision"]):
 
     if (old_obs_dict is not None and
@@ -48,13 +50,25 @@ def get_reward_all(env):
       print(obs_dict["veh_ids"][i], "old_ttc", old_obs_dict["ttc"][i], "ttc", obs_dict["ttc"][i],
             "pos", np.linalg.norm(old_obs_dict["relative_position"][i]), "action", action_dict,
             "collision", c)
-      r += -1
+      r = -1
+    if r == -1:
+      d = True
 
-  # regulation
-  violated1 = False
+  return ([[r]], [[d]], violated)
 
-  if obs_dict["ego_correct_lane_gap"] != 0:
-    r += 0.5 * (1 / (1 + np.exp(-0.1 * (obs_dict["ego_dist_to_end_of_lane"] - 60))) - 1)
+def get_reward_regulation(env):
+  r = 0
+  done = False
+  violated = False
+
+  obs_dict = env.obs_dict_hist[-1]
+  old_obs_dict = None
+  if len(env.obs_dict_hist) > 1:
+    old_obs_dict = env.obs_dict_hist[-2]
+
+  if obs_dict["ego_dist_to_end_of_lane"] < 100:
+    if obs_dict["ego_correct_lane_gap"] != 0:
+      r = 1/(1 + np.exp(-0.1*(obs_dict["ego_dist_to_end_of_lane"]-60))) - 1
 
   old_tte = None
   if old_obs_dict is not None:
@@ -63,15 +77,18 @@ def get_reward_all(env):
   if ((old_tte is not None and old_tte < 3) or old_obs_dict["ego_dist_to_end_of_lane"] < 2) and \
      obs_dict["ego_has_priority"] != 1 and \
      obs_dict["ego_in_intersection"] != 1 and \
-     old_tte > tte + 0.00001 and \
-     action_dict["accel_level"] != ActionAccel.MAXDECEL:
-      print("regulation: old_tte",old_tte , " tte ", tte)
-      done = True
-      r += -1
+     old_tte is not None and \
+     old_tte > tte + 0.00001:
+      r = -1
 
   if (obs_dict["ego_dist_to_end_of_lane"] < 0.01 and obs_dict["ego_correct_lane_gap"] != 0
-  ) or (tte < 0.5 and obs_dict["ego_has_priority"] != 1 and obs_dict["ego_in_intersection"] != 1):
-    violated1 = True
+      ) or (obs_dict["ego_dist_to_end_of_lane"] < 1 and
+            obs_dict["ego_has_priority"] != 1 and
+            obs_dict["ego_in_intersection"] != 1 and
+            obs_dict["ego_speed"] > 0.5):
+    violated = True
 
-  return ([[r]], [[d]], violated0, violated1)
+  if obs_dict["ego_priority_changed"] == 1 or obs_dict["ego_edge_changed"] == 1:
+    done = True
 
+  return ([[r]], [[done]], violated)
