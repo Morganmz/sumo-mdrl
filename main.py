@@ -23,7 +23,7 @@ if __name__ == "__main__":
   env = MultiObjSumoEnv(sumo_cfg)
   max_ep = 50000
   sim_inst = 10
-  dqn_cfg_list = [cfg_all]
+  dqn_cfg_list = [cfg_validity, cfg_safety, cfg_regulation, cfg_speed_comfort]
   if args.resume:
     for dqn_cfg in dqn_cfg_list:
       dqn_cfg.resume = True
@@ -68,7 +68,7 @@ if __name__ == "__main__":
                            args=(sumo_cfg, dqn_cfg, pretrain_traj_list, end_q, obs_q_list, action_q_list, traj_q_list,
                                  cuda_vis_devs))
                 for dqn_cfg, obs_q_list, action_q_list, traj_q_list, cuda_vis_devs in
-                zip(dqn_cfg_list, obs_queues, action_queues, traj_queues, ['0'])]
+                zip(dqn_cfg_list, obs_queues, action_queues, traj_queues, [None, '0', '0', None])]
 
     [p.start() for p in env_list]
     [p.start() for p in agt_list]
