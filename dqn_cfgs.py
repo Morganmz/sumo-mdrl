@@ -60,19 +60,19 @@ def build_model_all():
   Dense_list = [tf.keras.layers.Dense(320, activation=None) for _ in range(n_layers)]
   for i in range(n_layers):
     veh_l = [Dense_list[i](x) for x in veh_l]
-    veh_l = [tf.keras.layers.LeakyReLU()(x) for x in veh_l]
+    veh_l = [tf.keras.layers.Activation("sigmoid")(x) for x in veh_l]
 
   shared_Dense = tf.keras.layers.Dense(320, activation=None)
   veh_l = [shared_Dense(x) for x in veh_l]
 
   merged = tf.keras.layers.add(veh_l+[ego_l1])
-  merged = tf.keras.layers.LeakyReLU()(merged)
+  merged = tf.keras.layers.Activation("sigmoid")(merged)
 
   n_layers_merged = 2
   Dense_list_merged = [tf.keras.layers.Dense(320, activation=None) for _ in range(n_layers_merged)]
   for i in range(n_layers_merged):
     merged = Dense_list_merged[i](merged)
-    merged = tf.keras.layers.LeakyReLU()(merged)
+    merged = tf.keras.layers.Activation("sigmoid")(merged)
 
   y = tf.keras.layers.Dense(reduced_action_size, activation=None)(merged)
 
