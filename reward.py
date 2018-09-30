@@ -47,7 +47,7 @@ def get_reward_all(env):
       print(obs_dict["veh_ids"][i], "old_ttc", old_obs_dict["ttc"][i], "ttc", obs_dict["ttc"][i],
             "pos", np.linalg.norm(old_obs_dict["relative_position"][i]), "action", action_dict,
             "collision", c)
-      r = -1
+      r += -1
 
   # regulation
   violated_yield = False
@@ -58,7 +58,7 @@ def get_reward_all(env):
     violated_yield = True
 
   if obs_dict["ego_correct_lane_gap"] != 0:
-    r += 0.5 * (1 / (1 + np.exp(-0.1 * (obs_dict["ego_dist_to_end_of_lane"] - 60))) - 1)
+    r += 0.2 * (1 / (1 + np.exp(-0.1 * (obs_dict["ego_dist_to_end_of_lane"] - 60))) - 1)
 
   old_tte = None
   if old_obs_dict is not None:
@@ -71,6 +71,10 @@ def get_reward_all(env):
      action_dict["accel_level"] != ActionAccel.MAXDECEL:
       print("regulation: old_tte",old_tte , " tte ", tte)
       r += -1
+
+  if r <= -1:
+    r = -1
+    d = True
 
   return ([[r]], [[d]], violated_safety, violated_yield, violated_turn)
 
