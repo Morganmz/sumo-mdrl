@@ -42,8 +42,6 @@ def get_reward_all(env):
          action_dict["accel_level"] != ActionAccel.MAXDECEL
          )
         ) or (env.env_state == EnvState.CRASH
-        ) or (action_dict["lane_change"] != ActionLaneChange.NOOP and (obs_dict["ttc"][i] < 1.5)
-        ) or (env.env_state == EnvState.CRASH and c == 1
         ) or (action_dict["lane_change"] != ActionLaneChange.NOOP and (obs_dict["ttc"][i] < 1)
         ):
       print(obs_dict["veh_ids"][i], "old_ttc", old_obs_dict["ttc"][i], "ttc", obs_dict["ttc"][i],
