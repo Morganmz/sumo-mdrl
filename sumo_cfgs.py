@@ -66,6 +66,6 @@ sumo_cfg = SumoCfg(
                # reward
                MAX_COMFORT_ACCEL_LEVEL,
                MAX_COMFORT_DECEL_LEVEL,
-               MAX_COMFORT_DECEL_LEVEL,
+               # color
                DEFAULT_COLOR,
                YIELD_COLOR)
