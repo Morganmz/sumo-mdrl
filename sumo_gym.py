@@ -30,7 +30,10 @@ class SumoCfg():
                OBSERVATION_RADIUS, 
                # reward
                MAX_COMFORT_ACCEL_LEVEL, 
-               MAX_COMFORT_DECEL_LEVEL):
+               MAX_COMFORT_DECEL_LEVEL,
+               # color
+               DEFAULT_COLOR,
+               YIELD_COLOR):
     self.SUMO_CMD = SUMO_CMD
     self.SUMO_TIME_STEP = SUMO_TIME_STEP
     self.NET_XML_FILE = NET_XML_FILE
@@ -47,6 +50,9 @@ class SumoCfg():
     
     self.MAX_COMFORT_ACCEL_LEVEL = MAX_COMFORT_ACCEL_LEVEL
     self.MAX_COMFORT_DECEL_LEVEL = MAX_COMFORT_DECEL_LEVEL
+
+    self.DEFAULT_COLOR = DEFAULT_COLOR
+    self.YIELD_COLOR = YIELD_COLOR
 
 class SumoGymEnv(gym.Env):
   """SUMO environment"""
