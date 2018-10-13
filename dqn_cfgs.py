@@ -129,25 +129,25 @@ tf_cfg_safety.gpu_options.per_process_gpu_memory_fraction = 0.4
 
 def build_model_safety():
   ego_input = tf.keras.layers.Input(shape=(5, ))
-  ego_l1 = tf.keras.layers.Dense(320, activation=None)(ego_input)
+  ego_l1 = tf.keras.layers.Dense(64, activation=None)(ego_input)
 
   veh_inputs = [tf.keras.layers.Input(shape=(16,)) for _ in range(NUM_VEH_CONSIDERED)]
   veh_l = veh_inputs
 
-  n_layers = 2
-  Dense_list = [tf.keras.layers.Dense(320, activation=None) for _ in range(n_layers)]
+  n_layers = 1
+  Dense_list = [tf.keras.layers.Dense(64, activation=None) for _ in range(n_layers)]
   for i in range(n_layers):
     veh_l = [Dense_list[i](x) for x in veh_l]
     veh_l = [tf.keras.layers.Activation("sigmoid")(x) for x in veh_l]
 
-  shared_Dense = tf.keras.layers.Dense(320, activation=None)
+  shared_Dense = tf.keras.layers.Dense(64, activation=None)
   veh_l = [shared_Dense(x) for x in veh_l]
 
   merged = tf.keras.layers.add(veh_l+[ego_l1])
   merged = tf.keras.layers.Activation("sigmoid")(merged)
 
   n_layers_merged = 2
-  Dense_list_merged = [tf.keras.layers.Dense(320, activation=None) for _ in range(n_layers_merged)]
+  Dense_list_merged = [tf.keras.layers.Dense(64, activation=None) for _ in range(n_layers_merged)]
   for i in range(n_layers_merged):
     merged = Dense_list_merged[i](merged)
     merged = tf.keras.layers.Activation("sigmoid")(merged)

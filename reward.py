@@ -39,10 +39,13 @@ def get_reward_safety(env):
           old_obs_dict["ego_dist_to_end_of_lane"] < 30 and
           (obs_dict["ego_in_intersection"] != 1 or (obs_dict["ego_in_intersection"] == 1 and obs_dict["in_intersection"][i] == 1)))
          ) and
-        (abs(old_obs_dict["ttc"][i]) > abs(obs_dict["ttc"][i]) + 0.0000001 and
-         (np.linalg.norm(old_obs_dict["relative_position"][i]) < 8 or old_obs_dict["ttc"][i] < 3) and
-         action_dict["accel_level"] != ActionAccel.MAXDECEL
-         )
+        ((abs(old_obs_dict["ttc"][i]) > abs(obs_dict["ttc"][i]) + 1e-6 and
+          (np.linalg.norm(old_obs_dict["relative_position"][i]) < 10 or old_obs_dict["ttc"][i] < 3) and
+          (action_dict["accel_level"] != ActionAccel.MAXDECEL or obs_dict["veh_relation_behind"][i] == 1)) or
+         (old_obs_dict["ego_dist_to_end_of_lane"] > obs_dict["ego_dist_to_end_of_lane"] + 1e-6 and
+          np.linalg.norm(old_obs_dict["relative_position"][i]) < 8 and
+          (action_dict["accel_level"] != ActionAccel.MAXDECEL or obs_dict["veh_relation_behind"][i] == 1)
+         ))
         ) or (env.env_state == EnvState.CRASH and c == 1
         ) or (action_dict["lane_change"] != ActionLaneChange.NOOP and (obs_dict["ttc"][i] < 1)
         ):
