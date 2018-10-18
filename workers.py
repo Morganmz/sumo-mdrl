@@ -31,7 +31,7 @@ class decreaseProb():
   def __call__(self, x):
     return 1 / (1 + np.exp(self.alpha * (x - beta)))
 
-def run_env(sumo_cfg, dqn_cfg_list, end_q, obs_q_list, action_q_list, traj_q_list, play, max_ep, id):
+def run_env(sumo_cfg, dqn_cfg_list, obs_q_list, action_q_list, traj_q_list, play, max_ep, id):
   try:
     max_step = 3200
     env = MultiObjSumoEnv(sumo_cfg)
@@ -87,10 +87,12 @@ def run_env(sumo_cfg, dqn_cfg_list, end_q, obs_q_list, action_q_list, traj_q_lis
               obs_q.put((deepcopy(obs_dict), model_index))
 
             for action_q in action_q_list:
-              while action_q.empty():
-                if not end_q.empty():
-                  return
-              (action_set, sorted_idx) = action_q.get()
+              while True:
+                try:
+                  (action_set, sorted_idx) = action_q.get(block=False)
+                  break
+                except queue.Empty:
+                  continue
               action_set_list += [action_set]
               sorted_idx_list += [sorted_idx]
 
@@ -143,11 +145,12 @@ def run_env(sumo_cfg, dqn_cfg_list, end_q, obs_q_list, action_q_list, traj_q_lis
           tent_action_info_list = []
 
           for i, action_q in enumerate(action_q_list):
-            while action_q.empty():
-              if not end_q.empty():
-                return
-            (action_set, sorted_idx) = action_q.get()
-
+            while True:
+              try:
+                (action_set, sorted_idx) = action_q.get(block=False)
+                break
+              except queue.Empty:
+                continue
             action_set_list += [action_set]
             sorted_idx_list += [sorted_idx]
 
@@ -163,10 +166,12 @@ def run_env(sumo_cfg, dqn_cfg_list, end_q, obs_q_list, action_q_list, traj_q_lis
             obs_q.put((deepcopy(next_obs_dict), model_index))
 
           for action_q in action_q_list:
-            while action_q.empty():
-              if not end_q.empty():
-                return
-            (action_set, sorted_idx) = action_q.get()
+            while True:
+              try:
+                (action_set, sorted_idx) = action_q.get(block=False)
+                break
+              except queue.Empty:
+                continue
             action_set_list += [action_set]
             sorted_idx_list += [sorted_idx]
 
@@ -209,10 +214,7 @@ def run_env(sumo_cfg, dqn_cfg_list, end_q, obs_q_list, action_q_list, traj_q_lis
       violation_yield_hist += [violated_yield]
       violation_turn_hist += [violated_turn]
 
-    end_q.put(True)
-
   except:
-    end_q.put(True)
     raise
 
   finally:
@@ -220,6 +222,7 @@ def run_env(sumo_cfg, dqn_cfg_list, end_q, obs_q_list, action_q_list, traj_q_lis
     f.writelines(["safety violation: " +  str(violation_safety_hist) + "\n"])
     f.writelines(["regulation violation (yield): " +  str(violation_yield_hist) + "\n"])
     f.writelines(["regulation violation (turn): " + str(violation_turn_hist) + "\n"])
+    f.close()
 
 
 def select_action(dqn_cfg_list, is_explr_list, action_set_list, sorted_idx_list, num_action, greedy=False):
@@ -261,10 +264,10 @@ def select_action(dqn_cfg_list, is_explr_list, action_set_list, sorted_idx_list,
   valid = [(x, "exploit: " + dqn_cfg.name) for x in valid]
   return random.sample(valid + invalid, 1)[0]
 
-def run_QAgent(sumo_cfg, dqn_cfg, pretrain_traj_list, end_q, obs_q_list, action_q_list, traj_q_list, cuda_vis_devs):
+def run_QAgent(sumo_cfg, dqn_cfg, pretrain_traj_list, obs_q_list, action_q_list, traj_q_list, cuda_vis_devs):
   try:
     os.environ['CUDA_VISIBLE_DEVICES'] = cuda_vis_devs
-    agt = DQNAgent(sumo_cfg, dqn_cfg, end_q)
+    agt = DQNAgent(sumo_cfg, dqn_cfg)
 
     ep = 0
     step = 0
@@ -278,10 +281,7 @@ def run_QAgent(sumo_cfg, dqn_cfg, pretrain_traj_list, end_q, obs_q_list, action_
             step += 1
             step_updated = True
         except queue.Empty:
-          if not end_q.empty():
-            return
-          else:
-            continue
+          continue
 
       for traj_q in traj_q_list:
         try:
@@ -303,5 +303,4 @@ def run_QAgent(sumo_cfg, dqn_cfg, pretrain_traj_list, end_q, obs_q_list, action_
         agt.save_model(suffix=str(step//20000))
 
   except:
-    end_q.put(True)
     raise
