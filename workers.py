@@ -196,6 +196,7 @@ def run_env(sumo_cfg, dqn_cfg_list, end_q, obs_q_list, action_q_list, traj_q_lis
         if step == max_step - 1:
           prob = returnX(1)
           print("Sim ", id, " timeout, step: ", step)
+          violated_yield = True
           break
 
       for i, traj_q in enumerate(traj_q_list):
@@ -215,7 +216,7 @@ def run_env(sumo_cfg, dqn_cfg_list, end_q, obs_q_list, action_q_list, traj_q_lis
     raise
 
   finally:
-    f = open("result", "a")
+    f = open("result" + str(id), "a")
     f.writelines(["safety violation: " +  str(violation_safety_hist) + "\n"])
     f.writelines(["regulation violation (yield): " +  str(violation_yield_hist) + "\n"])
     f.writelines(["regulation violation (turn): " + str(violation_turn_hist) + "\n"])

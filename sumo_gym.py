@@ -108,11 +108,11 @@ class SumoGymEnv(gym.Env):
       self.tc.load(self.SUMO_CMD[1:] + ROU_XML_FILE)
       # 1st time step starts the simulation, 
       # 2nd makes sure that all initial vehicles (departure time < SUMO_TIME_STEP) are in scene
+      self.agt_ctrl = False
       self.tc.simulationStep()
       self.tc.simulationStep()
       self.veh_dict_hist.append(get_veh_dict(self))
       self.obs_dict_hist.append(get_obs_dict(self))
-      self.agt_ctrl = False
       self.env_state = EnvState.NORMAL
       for i in range(init_step):
         if self.env_state == EnvState.NORMAL:
@@ -164,6 +164,7 @@ class MultiObjSumoEnv(SumoGymEnv):
       print("next", self.obs_dict_hist[-1]["veh_relation_next"])
       print("in_intersection", self.obs_dict_hist[-1]["in_intersection"])
       print("has_priority", self.obs_dict_hist[-1]["has_priority"])
+      print("ego_has_priority", self.obs_dict_hist[-1]["ego_has_priority"])
       print(self.obs_dict_hist[-1]["ttc"])
       print(get_reward_list(self)[0][1])
       """
