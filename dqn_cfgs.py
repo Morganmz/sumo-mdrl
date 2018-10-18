@@ -51,7 +51,7 @@ tf_cfg_all.gpu_options.per_process_gpu_memory_fraction = 0.8
 
 def build_model_all():
   ego_input = tf.keras.layers.Input(shape=(7, ))
-  ego_l1 = tf.keras.layers.Dense(320, activation=None)(ego_input)
+  ego_l1 = tf.keras.layers.Dense(64, activation=None)(ego_input)
 
   veh_inputs = [tf.keras.layers.Input(shape=(16,)) for _ in range(NUM_VEH_CONSIDERED)]
   veh_l = veh_inputs
@@ -100,19 +100,15 @@ cfg_all =    DQNCfg(name = "all",
                     gamma = 0.9,
                     gamma_inc = 1e-5,
                     gamma_max = 0.9,
-                    epsilon = 0.1,
-                    epsilon_dec = 0.00001,
-                    epsilon_min = 0.1,
-                    threshold = -0.05,
-                    epsilon = 0.6,
+                    epsilon = 0.2,
                     epsilon_dec = 1e-5,
-                    epsilon_min = 0.6,
-                    threshold = -0.15,
+                    epsilon_min = 0.1,
+                    threshold = -0.1,
                     memory_size = 3200,
                     traj_end_pred = returnTrue(),
                     replay_batch_size = 320,
                     traj_end_ratio= 0.0001,
                     _build_model = build_model_all,
-                    model_rst_prob_list = [1/5000, 1/20000, 1/100000, 1/1000000],
+                    model_rst_prob_list = [],
                     tf_cfg = tf_cfg_all,
                     reshape = reshape_all)
