@@ -154,7 +154,7 @@ def get_obs_dict(env):
   
   veh_dict = get_veh_dict(env)
   # set the color to default
-  [env.tc.vehicle.setColor(k, env.DEFAULT_COLOR) for k, v in veh_dict.items() if k!=env.EGO_VEH_ID]
+  [env.tc.vehicle.setColor(k, env.DEFAULT_COLOR) for k, v in veh_dict.items() if k != env.EGO_VEH_ID]
 
   lanelet_dict = deepcopy(env.lanelet_dict)
   edge_dict = deepcopy(env.edge_dict)
@@ -433,8 +433,6 @@ def get_obs_dict(env):
     # change the color of the high-priority vehicle
     if obs_dict["has_priority"][veh_index] == 1:
       env.tc.vehicle.setColor(obs_dict["veh_ids"][veh_index], env.YIELD_COLOR)
-
-
 
     # time to collision (just an estimate)
     ego_v = np.array([0, obs_dict["ego_speed"]])
