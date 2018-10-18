@@ -41,6 +41,11 @@ def get_reward_all(env):
           (np.linalg.norm(old_obs_dict["relative_position"][i]) < 10 or old_obs_dict["ttc"][i] < 3)) or
          (old_obs_dict["ego_dist_to_end_of_lane"] > obs_dict["ego_dist_to_end_of_lane"] + 1e-6 and
           np.linalg.norm(old_obs_dict["relative_position"][i]) < 8
+          (np.linalg.norm(old_obs_dict["relative_position"][i]) < 10 or old_obs_dict["ttc"][i] < 3) and
+          (action_dict["accel_level"] != ActionAccel.MAXDECEL or obs_dict["veh_relation_behind"][i] == 1)) or
+         (np.linalg.norm(old_obs_dict["relative_position"][i]) > np.linalg.norm(obs_dict["relative_position"][i]) + 1e-6 and
+          np.linalg.norm(old_obs_dict["relative_position"][i]) < 7 and
+          (action_dict["accel_level"] != ActionAccel.MAXDECEL or obs_dict["veh_relation_behind"][i] == 1)
          ))
         ) or (env.env_state == EnvState.CRASH and c == 1
         ) or (action_dict["lane_change"] != ActionLaneChange.NOOP and (obs_dict["ttc"][i] < 1)
