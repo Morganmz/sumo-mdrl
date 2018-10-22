@@ -68,7 +68,7 @@ def get_reward_all(env):
      obs_dict["ego_in_intersection"] != 1 and \
      old_tte > tte + 1e-6:
       print("regulation: old_tte",old_tte , " tte ", tte)
-      r += -0.1
+      r += -0.2
 
   if r <= -1:
     r = -1
