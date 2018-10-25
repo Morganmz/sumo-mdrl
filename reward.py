@@ -80,9 +80,10 @@ def get_reward_all(env):
      old_tte < tte - 1e-6:
       r = -0.02
 
-  if (tte < 0.3 and obs_dict["ego_correct_lane_gap"] != 0):
+  if (tte < 0.15 and obs_dict["ego_correct_lane_gap"] != 0):
     violated_turn = True
-  if (tte < 0.3 and obs_dict["ego_has_priority"] != 1 and obs_dict["ego_in_intersection"] != 1 ):
+  if (old_obs_dict is not None and old_obs_dict["ego_has_priority"] != 1 and
+      old_obs_dict["ego_in_intersection"] != 1 and obs_dict["ego_in_intersection"] == 1):
     violated_yield = True
 
 
