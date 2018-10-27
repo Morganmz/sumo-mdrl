@@ -32,10 +32,8 @@ def get_reward_all(env):
         obs_dict["veh_relation_none"] != 1 and
         (obs_dict["veh_relation_ahead"][i] == 1 or
          ((obs_dict["veh_relation_conflict"][i] == 1 or obs_dict["veh_relation_peer"][i] == 1) and
-          (obs_dict["ego_has_priority"] == 0 or obs_dict["in_intersection"][i] == 1) and
-          old_obs_dict["dist_to_end_of_lane"][i] < 30 and
-          old_obs_dict["ego_dist_to_end_of_lane"] < 30 and
-          (obs_dict["ego_in_intersection"] != 1 or (obs_dict["ego_in_intersection"] == 1 and obs_dict["in_intersection"][i] == 1)))
+          obs_dict["in_intersection"][i] == 1 and
+          obs_dict["ego_in_intersection"] == 1)
          ) and
         ((abs(old_obs_dict["ttc"][i]) > abs(obs_dict["ttc"][i]) + 1e-6 and
           (np.linalg.norm(old_obs_dict["relative_position"][i]) < 10 or old_obs_dict["ttc"][i] < 3)) or

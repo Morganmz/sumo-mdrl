@@ -21,6 +21,7 @@ def reshape_all(obs_dict):
                  ], dtype = np.float32)
   o1 = np.reshape(np.array([], dtype = np.float32), (0, NUM_VEH_CONSIDERED))
   o1  = np.append(o1, np.array([obs_dict["exists_vehicle"]]) - 0.5, axis=0)
+  o1 = np.append(o1, np.array([obs_dict["in_intersection"]]) - 0.5, axis=0)
   o1 = np.append(o1, np.array([obs_dict["brake_signal"]]) - 0.5, axis=0)
   o1 = np.append(o1, np.array([obs_dict["left_signal"]]) - 0.5, axis=0)
   o1 = np.append(o1, np.array([obs_dict["right_signal"]]) - 0.5, axis=0)
@@ -53,7 +54,7 @@ def build_model_all():
   ego_input = tf.keras.layers.Input(shape=(7, ))
   ego_l1 = tf.keras.layers.Dense(64, activation=None)(ego_input)
 
-  veh_inputs = [tf.keras.layers.Input(shape=(16,)) for _ in range(NUM_VEH_CONSIDERED)]
+  veh_inputs = [tf.keras.layers.Input(shape=(17,)) for _ in range(NUM_VEH_CONSIDERED)]
   veh_l = veh_inputs
 
   n_layers = 1
@@ -93,7 +94,7 @@ cfg_all =    DQNCfg(name = "all",
                     play = False,
                     version = "current",
                     resume = False,
-                    state_size = 7 + 16*NUM_VEH_CONSIDERED,
+                    state_size = 5 + 17*NUM_VEH_CONSIDERED,
                     action_size = reduced_action_size,
                     low_target=-1,
                     high_target=0,
