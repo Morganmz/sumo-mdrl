@@ -147,7 +147,7 @@ def build_model_safety():
   merged = tf.keras.layers.add(veh_l+[ego_l1])
   merged = tf.keras.layers.Activation("sigmoid")(merged)
 
-  n_layers_merged = 2
+  n_layers_merged = 3
   Dense_list_merged = [tf.keras.layers.Dense(64, activation=None) for _ in range(n_layers_merged)]
   for i in range(n_layers_merged):
     merged = Dense_list_merged[i](merged)
