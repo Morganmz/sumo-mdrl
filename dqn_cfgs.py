@@ -176,7 +176,7 @@ def reshape_regulation(obs_dict):
   return [[o]]
 
 tf_cfg_regulation = tf.ConfigProto()
-tf_cfg_regulation.gpu_options.per_process_gpu_memory_fraction = 0.4
+tf_cfg_regulation.gpu_options.per_process_gpu_memory_fraction = 0.3
 
 def build_model_regulation():
   x = tf.keras.layers.Input(shape=(6 + 2*NUM_LANE_CONSIDERED, ))
@@ -364,9 +364,9 @@ cfg_safety = DQNCfg(name = "safety",
                     gamma_inc = 1e-5,
                     gamma_max = 0.9,
                     epsilon = 0.6,
-                    epsilon_dec = 1e-5,
-                    epsilon_min = 0.6,
-                    threshold = -0.2,
+                    epsilon_dec = 1e-6,
+                    epsilon_min = 0.4,
+                    threshold = -0.20,
                     memory_size = 3200,
                     traj_end_pred = returnTrue(),
                     replay_batch_size = 320,
@@ -387,9 +387,9 @@ cfg_regulation = DQNCfg(name = "regulation",
                         gamma = 0.90,
                         gamma_inc = 1e-5,
                         gamma_max = 0.95,
-                        epsilon=0.8,
+                        epsilon=0.6,
                         epsilon_dec=1e-5,
-                        epsilon_min=0.8,
+                        epsilon_min=0.6,
                         threshold = -0.15,
                         memory_size = 64000,
                         traj_end_pred = returnTrue(),
