@@ -57,7 +57,7 @@ def build_model_all():
   veh_inputs = [tf.keras.layers.Input(shape=(17,)) for _ in range(NUM_VEH_CONSIDERED)]
   veh_l = veh_inputs
 
-  n_layers = 1
+  n_layers = 3
   Dense_list = [tf.keras.layers.Dense(64, activation=None) for _ in range(n_layers)]
   for i in range(n_layers):
     veh_l = [Dense_list[i](x) for x in veh_l]
@@ -66,10 +66,10 @@ def build_model_all():
   shared_Dense = tf.keras.layers.Dense(64, activation=None)
   veh_l = [shared_Dense(x) for x in veh_l]
 
-  merged = tf.keras.layers.add(veh_l+[ego_l1])
+  merged = tf.keras.layers.average(veh_l+[ego_l1])
   merged = tf.keras.layers.Activation("sigmoid")(merged)
 
-  n_layers_merged = 2
+  n_layers_merged = 1
   Dense_list_merged = [tf.keras.layers.Dense(64, activation=None) for _ in range(n_layers_merged)]
   for i in range(n_layers_merged):
     merged = Dense_list_merged[i](merged)
