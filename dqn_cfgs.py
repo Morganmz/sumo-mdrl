@@ -135,7 +135,7 @@ def build_model_safety():
   veh_inputs = [tf.keras.layers.Input(shape=(17,)) for _ in range(NUM_VEH_CONSIDERED)]
   veh_l = veh_inputs
 
-  n_layers = 1
+  n_layers = 3
   Dense_list = [tf.keras.layers.Dense(64, activation=None) for _ in range(n_layers)]
   for i in range(n_layers):
     veh_l = [Dense_list[i](x) for x in veh_l]
@@ -144,10 +144,10 @@ def build_model_safety():
   shared_Dense = tf.keras.layers.Dense(64, activation=None)
   veh_l = [shared_Dense(x) for x in veh_l]
 
-  merged = tf.keras.layers.add(veh_l+[ego_l1])
+  merged = tf.keras.layers.average(veh_l+[ego_l1])
   merged = tf.keras.layers.Activation("sigmoid")(merged)
 
-  n_layers_merged = 3
+  n_layers_merged = 1
   Dense_list_merged = [tf.keras.layers.Dense(64, activation=None) for _ in range(n_layers_merged)]
   for i in range(n_layers_merged):
     merged = Dense_list_merged[i](merged)
@@ -364,8 +364,8 @@ cfg_safety = DQNCfg(name = "safety",
                     gamma_inc = 1e-5,
                     gamma_max = 0.9,
                     epsilon = 0.6,
-                    epsilon_dec = 1e-6,
-                    epsilon_min = 0.4,
+                    epsilon_dec = 1e-5,
+                    epsilon_min = 0.6,
                     threshold = -0.20,
                     memory_size = 3200,
                     traj_end_pred = returnTrue(),
@@ -387,9 +387,9 @@ cfg_regulation = DQNCfg(name = "regulation",
                         gamma = 0.90,
                         gamma_inc = 1e-5,
                         gamma_max = 0.95,
-                        epsilon=0.6,
+                        epsilon=0.8,
                         epsilon_dec=1e-5,
-                        epsilon_min=0.6,
+                        epsilon_min=0.8,
                         threshold = -0.15,
                         memory_size = 64000,
                         traj_end_pred = returnTrue(),
