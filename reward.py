@@ -47,9 +47,8 @@ def get_reward_all(env):
       print(obs_dict["veh_ids"][i], "old_ttc", old_obs_dict["ttc"][i], "ttc", obs_dict["ttc"][i],
             "pos", np.linalg.norm(old_obs_dict["relative_position"][i]), "action", action_dict,
             "collision", c)
-      r = -1
-    if r == -1:
-      d = True
+      r += -1
+    if env.env_state == EnvState.CRASH:
       break
 
   violated_turn = False
@@ -70,24 +69,20 @@ def get_reward_all(env):
       print("regulation: old_tte",old_tte , " tte ", tte)
       r += -1
 
-  if obs_dict["ego_speed"] < 1:
-    r += -0.1
+  if (old_tte is not None and
+      obs_dict["ego_has_priority"] == 1 and
+      obs_dict["ego_in_intersection"] != 1 and
+      old_tte < tte - 1e-6) or obs_dict["ego_speed"] < 1:
+      r += -0.02
 
   if r <= -1:
     r = -1
     d = True
-
-  if old_tte is not None and \
-     obs_dict["ego_has_priority"] == 1 and \
-     obs_dict["ego_in_intersection"] != 1 and \
-     old_tte < tte - 1e-6:
-      r += -0.02
 
   if (tte < 0.15 and obs_dict["ego_correct_lane_gap"] != 0):
     violated_turn = True
   if (old_obs_dict is not None and old_obs_dict["ego_has_priority"] != 1 and
       old_obs_dict["ego_in_intersection"] != 1 and obs_dict["ego_in_intersection"] == 1):
     violated_yield = True
-
 
   return ([[r]], [[d]], violated_safety, violated_yield, violated_turn)
