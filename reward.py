@@ -41,7 +41,7 @@ def get_reward_all(env):
          (np.linalg.norm(old_obs_dict["relative_position"][i]) > np.linalg.norm(obs_dict["relative_position"][i]) + 1e-6 and
           np.linalg.norm(old_obs_dict["relative_position"][i]) < 7
          ))
-        ) or (env.env_state == EnvState.CRASH and c == 1
+        ) or (env.env_state == EnvState.CRASH
         ) or (action_dict["lane_change"] != ActionLaneChange.NOOP and (obs_dict["ttc"][i] < 1)
         ):
       print(obs_dict["veh_ids"][i], "old_ttc", old_obs_dict["ttc"][i], "ttc", obs_dict["ttc"][i],
@@ -50,6 +50,7 @@ def get_reward_all(env):
       r = -1
     if r == -1:
       d = True
+      break
 
   violated_turn = False
   violated_yield = False
@@ -80,7 +81,7 @@ def get_reward_all(env):
      obs_dict["ego_has_priority"] == 1 and \
      obs_dict["ego_in_intersection"] != 1 and \
      old_tte < tte - 1e-6:
-      r = -0.02
+      r += -0.02
 
   if (tte < 0.15 and obs_dict["ego_correct_lane_gap"] != 0):
     violated_turn = True
