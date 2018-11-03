@@ -73,7 +73,7 @@ def get_reward_all(env):
       obs_dict["ego_has_priority"] == 1 and
       obs_dict["ego_in_intersection"] != 1 and
       old_tte < tte - 1e-6) or obs_dict["ego_speed"] < 0.1:
-      r += -0.05
+      r += -0.1
 
   if r <= -1:
     r = -1
