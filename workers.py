@@ -40,6 +40,7 @@ def run_env(sumo_cfg, dqn_cfg_list, obs_q_list, action_q_list, traj_q_list, play
     violation_safety_hist = []
     violation_yield_hist = []
     violation_turn_hist = []
+    step_hist = []
 
     for ep in range(max_ep):
       print("env id: {}".format(id), "episode: {}/{}".format(ep, max_ep))
@@ -214,6 +215,7 @@ def run_env(sumo_cfg, dqn_cfg_list, obs_q_list, action_q_list, traj_q_list, play
       violation_safety_hist += [violated_safety]
       violation_yield_hist += [violated_yield]
       violation_turn_hist += [violated_turn]
+      step_hist += [step]
 
   except:
     raise
@@ -223,6 +225,7 @@ def run_env(sumo_cfg, dqn_cfg_list, obs_q_list, action_q_list, traj_q_list, play
     f.writelines(["safety violation: " +  str(violation_safety_hist) + "\n"])
     f.writelines(["regulation violation (yield): " +  str(violation_yield_hist) + "\n"])
     f.writelines(["regulation violation (turn): " + str(violation_turn_hist) + "\n"])
+    f.writelines(["time steps before collision: " + str(step_hist) + "\n"])
     f.close()
 
 
