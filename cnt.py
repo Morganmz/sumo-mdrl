@@ -28,7 +28,7 @@ for i in range(len(contents[0])):
     for j in range(NUM_SIM_INSTANCE):
       cnt += sum(ast.literal_eval(contents[j][i][29:]))
     turn_v += [cnt]
-  if i % 4 == 2:
+  if i % 4 == 3:
     for j in range(NUM_SIM_INSTANCE):
       cnt += sum(ast.literal_eval(contents[j][i][29:]))
     steps += [cnt]

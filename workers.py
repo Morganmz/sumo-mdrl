@@ -63,6 +63,7 @@ def run_env(sumo_cfg, dqn_cfg_list, obs_q_list, action_q_list, traj_q_list, play
         if step == 0:
           if play:
             env.agt_ctrl = True
+          non_stop_step = 0
 
         """
           else:
@@ -189,6 +190,9 @@ def run_env(sumo_cfg, dqn_cfg_list, obs_q_list, action_q_list, traj_q_list, play
         if env_state != EnvState.DONE:
           traj.append((obs_dict, action, reward_list, next_obs_dict, tent_action_list, done_list, important))
 
+        if obs_dict["ego_speed"] > 1e-6:
+          non_stop_step += 1
+
         obs_dict = next_obs_dict
 
         if env_state == EnvState.DONE:
@@ -215,7 +219,7 @@ def run_env(sumo_cfg, dqn_cfg_list, obs_q_list, action_q_list, traj_q_list, play
       violation_safety_hist += [violated_safety]
       violation_yield_hist += [violated_yield]
       violation_turn_hist += [violated_turn]
-      step_hist += [step]
+      step_hist += [non_stop_step]
 
   except:
     raise
